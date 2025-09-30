@@ -28,6 +28,7 @@ public class DriverService {
        driver.setCurrentLocation("Earth");
        driver.setStatus(Status.AVAILABLE);
        driver.setVehicle(vehicle);
+       driver.setName(dto.getName());
 
         System.out.println("driver " + driver);
         System.out.println("dto " + dto);
@@ -37,6 +38,7 @@ public class DriverService {
        DriverResponseDto response= mapper.map(saved, DriverResponseDto.class);
        response.setModel(vehicle.getModel());
        response.setType(vehicle.getType());
+       response.setName(saved.getName());
        response.setLicensePlate(vehicle.getLicensePlate());
        return  response;
     }
