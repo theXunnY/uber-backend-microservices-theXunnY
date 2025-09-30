@@ -26,8 +26,8 @@ public class TripController {
     }
 
     @GetMapping
-    ResponseEntity<List<TripResponseDto>> check(@RequestBody TripRequestDto dto){
-        return ResponseEntity.status(HttpStatus.CREATED).body(service.findAll());
+    ResponseEntity<List<TripResponseDto>> getAllTrips(){
+        return ResponseEntity.status(HttpStatus.FOUND).body(service.findAll());
     }
 
     @GetMapping("/{id}")

@@ -9,6 +9,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/payment")
@@ -31,5 +33,10 @@ public class PaymentController {
         PaymentResponseDto response = service.findPayment(id);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
 
+    }
+
+    @GetMapping
+    ResponseEntity<List<PaymentResponseDto>> getAllPayments(){
+        return ResponseEntity.status(HttpStatus.FOUND).body(service.findAllPaymennts());
     }
 }

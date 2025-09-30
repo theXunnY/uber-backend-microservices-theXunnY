@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
 
@@ -23,17 +24,20 @@ public class TripService {
     private final WebClient.Builder clientBuilder;
 
     public TripResponseDto createTrip(TripRequestDto dto){
-        var rider = clientBuilder.build()
-                .get()
-                .uri("http://RIDER-SERVICE/api/rider/{id}", dto.getRiderId())
-                .retrieve()
-                .bodyToMono(Object.class)
-                .block();
-        log.info("Rider: {}", rider);
 
-        if (rider == null){
-            throw new RuntimeException("User is not registered please register");
+        try {
+            var rider = clientBuilder.build()
+                    .get()
+                    .uri("http://RIDER-SERVICE/api/rider/{id}", dto.getRiderId())
+                    .retrieve()
+                    .bodyToMono(Object.class)
+                    .block();
+        }catch (Exception e){
+            log.error("Rider service unavailable: {}", e.getMessage());
+            throw new RuntimeException("Rider service is currently unavailable please try again later");
         }
+
+
 
         var driver = clientBuilder.build()
                 .get()
@@ -56,9 +60,6 @@ public class TripService {
                         .driverId(dto.getDriverId())
                         .build();
 
-
-
-        System.out.println(trip);
         repository.save(trip);
         return mapper.map(trip, TripResponseDto.class);
     }
@@ -77,7 +78,6 @@ public class TripService {
 
         TripResponseDto trip = findTrip(tripId);
 
-
         PaymentRequestDto paymentRequest = PaymentRequestDto
                 .builder()
                 .amount(1000.0)
@@ -95,7 +95,14 @@ public class TripService {
                 .bodyValue(paymentRequest)
                 .retrieve()
                 .bodyToMono(PaymentResponseDto.class)
+                .retry(3)
+                .onErrorResume( e -> {
+                    log.error("Payment failed after retried {}", e.getMessage());
+                    return Mono.just(PaymentResponseDto.builder().status("FAILED").build());
+
+                })
                 .block();
+
         log.info("Payment Response : {}",payment );
 
         if (payment == null){
@@ -114,8 +121,5 @@ public class TripService {
         repository.save(tripObject);
 
         return payment;
-
-
-
     }
 }

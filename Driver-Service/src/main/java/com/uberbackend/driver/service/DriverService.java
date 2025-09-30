@@ -10,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class DriverService {
@@ -53,4 +55,21 @@ public class DriverService {
         return response;
     }
 
+    public List<DriverResponseDto> findAllDriver() {
+        List<Driver> drivers = driverRepository.findAll();
+        List<DriverResponseDto> list = drivers.stream().map(driver -> {
+            DriverResponseDto dto = mapper.map(driver, DriverResponseDto.class);
+
+            // Map embedded vehicle manually
+            if (driver.getVehicle() != null) {
+                dto.setLicensePlate(driver.getVehicle().getLicensePlate());
+                dto.setModel(driver.getVehicle().getModel());
+                dto.setType(driver.getVehicle().getType());
+            }
+
+            return dto;
+        }).toList();
+
+        return list;
+    }
 }

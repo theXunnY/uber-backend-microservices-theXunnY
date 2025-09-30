@@ -8,6 +8,9 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
+import java.sql.Driver;
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class RiderService {
@@ -32,4 +35,9 @@ public class RiderService {
         return mapper.map(rider, RiderResponseDto.class);
     }
 
+    public List<RiderResponseDto> findAllRider() {
+
+        List<Rider> list = riderRepository.findAll();
+        return list.stream().map(rider -> mapper.map(rider, RiderResponseDto.class)).toList();
+    }
 }

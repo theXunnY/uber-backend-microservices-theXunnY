@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -42,5 +43,11 @@ public class PaymentService {
         System.out.println(payment);
 
         return mapper.map(payment, PaymentResponseDto.class);
+    }
+
+    public List<PaymentResponseDto> findAllPaymennts() {
+    List<Payment> list = repository.findAll();
+    return  list.stream().map(payment -> mapper.map(payment, PaymentResponseDto.class)).toList();
+
     }
 }
